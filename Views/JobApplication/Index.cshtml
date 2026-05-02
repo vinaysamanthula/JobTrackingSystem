@@ -1,0 +1,31 @@
+﻿@model List<JobTrackingSystem.Models.JobApplication>
+
+<h2>Job Applications</h2>
+
+
+<table border="1" cellpadding="10">
+    <thead>
+        <tr>
+            <th>Company</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th>Date Applied</th>
+            <th>Notes</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Company?.Name</td>
+                <td>@item.Role</td>
+                <td>@item.Status</td>
+                <td>@item.DateApplied.ToShortDateString()</td>
+                <td>@item.Notes</td>
+                <td><a asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+</td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,63 @@
+﻿@model JobTrackingSystem.Models.JobApplication
+
+@{
+    ViewData["Title"] = "Create Job Application";
+}
+<div asp-validation-summary="All" style="color:red;"></div>
+<h2>Create Job Application</h2>
+
+<form asp-action="Create" method="post">
+
+    <div>
+        <label>Company</label>
+        <select asp-for="CompanyId" required>
+            <option value="">-- Select Company --</option>
+            @foreach (var company in ViewBag.Companies)
+            {
+                <option value="@company.Id">@company.Name</option>
+            }
+        </select>
+    </div>
+
+    <br />
+
+    <div>
+        <label>Role</label>
+        <input asp-for="Role" required />
+    </div>
+
+    <br />
+
+    <div>
+        <label>Status</label>
+        <select asp-for="Status" required>
+            <option value="">-- Select Status --</option>
+            <option>Applied</option>
+            <option>Interview</option>
+            <option>Rejected</option>
+            <option>Offer</option>
+        </select>
+    </div>
+
+    <br />
+
+    <div>
+        <label>Date Applied</label>
+        <input asp-for="DateApplied" type="date" required />
+    </div>
+
+    <br />
+
+    <div>
+        <label>Notes</label>
+        <textarea asp-for="Notes"></textarea>
+    </div>
+
+    <br />
+
+    <button type="submit">Save</button>
+
+</form>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
