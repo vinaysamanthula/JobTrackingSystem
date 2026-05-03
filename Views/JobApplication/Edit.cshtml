@@ -1,64 +1,52 @@
-﻿@model JobTrackingSystem.Models.JobApplication
+﻿@model JobTrackingSystem.ViewModels.JobApplicationEditVm
 
-@{
-    ViewData["Title"] = "Create Job Application";
-}
-<div asp-validation-summary="All" style="color:red;"></div>
 <h2>Edit Job Application</h2>
 
-<form asp-action="edit" method="post">
+<div asp-validation-summary="All" class="text-danger"></div>
 
-    <input type="hidden" asp-for="Id" />  <!-- 🔥 HERE -->
+<form asp-action="Edit" method="post">
+    @Html.AntiForgeryToken()
+
+    <input type="hidden" asp-for="Id" />
+
     <div>
         <label>Company</label>
-        <select asp-for="CompanyId" required>
-            <option value="">-- Select Company --</option>
-            @foreach (var company in ViewBag.Companies)
-            {
-                <option value="@company.Id">@company.Name</option>
-            }
-        </select>
+        <select asp-for="CompanyId" asp-items="Model.Companies" class="form-control"></select>
+        <span asp-validation-for="CompanyId" class="text-danger"></span>
     </div>
-
-    <br />
 
     <div>
         <label>Role</label>
-        <input asp-for="Role" required />
+        <input asp-for="Role" class="form-control" />
+        <span asp-validation-for="Role" class="text-danger"></span>
     </div>
-
-    <br />
 
     <div>
         <label>Status</label>
-        <select asp-for="Status" required>
+        <select asp-for="Status" class="form-control">
             <option value="">-- Select Status --</option>
             <option>Applied</option>
             <option>Interview</option>
             <option>Rejected</option>
             <option>Offer</option>
         </select>
+        <span asp-validation-for="Status" class="text-danger"></span>
     </div>
-
-    <br />
 
     <div>
         <label>Date Applied</label>
-        <input asp-for="DateApplied" type="date" required />
+        <input asp-for="DateApplied" type="date" class="form-control" />
+        <span asp-validation-for="DateApplied" class="text-danger"></span>
     </div>
-
-    <br />
 
     <div>
         <label>Notes</label>
-        <textarea asp-for="Notes"></textarea>
+        <textarea asp-for="Notes" class="form-control"></textarea>
     </div>
 
-    <br />
-
-    <button type="submit">Save</button>
-
+    <button type="submit" class="btn btn-primary mt-2">Update</button>
 </form>
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }

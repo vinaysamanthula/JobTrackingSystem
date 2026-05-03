@@ -1,49 +1,48 @@
-﻿@model JobTrackingSystem.Models.JobApplication
+﻿@model JobTrackingSystem.ViewModels.JobApplicationCreateVm
 
-@{
-    ViewData["Title"] = "Create Job Application";
-}
-<div asp-validation-summary="All" style="color:red;"></div>
 <h2>Create Job Application</h2>
 
+<div asp-validation-summary="All" class="text-danger"></div>
+
 <form asp-action="Create" method="post">
+    @Html.AntiForgeryToken()
 
     <div>
         <label>Company</label>
-        <select asp-for="CompanyId" required>
+        <select asp-for="CompanyId" asp-items="Model.Companies">
             <option value="">-- Select Company --</option>
-            @foreach (var company in ViewBag.Companies)
-            {
-                <option value="@company.Id">@company.Name</option>
-            }
         </select>
+        <span asp-validation-for="CompanyId" class="text-danger"></span>
     </div>
 
     <br />
 
     <div>
         <label>Role</label>
-        <input asp-for="Role" required />
+        <input asp-for="Role" />
+        <span asp-validation-for="Role" class="text-danger"></span>
     </div>
 
     <br />
 
     <div>
         <label>Status</label>
-        <select asp-for="Status" required>
+        <select asp-for="Status">
             <option value="">-- Select Status --</option>
             <option>Applied</option>
             <option>Interview</option>
             <option>Rejected</option>
             <option>Offer</option>
         </select>
+        <span asp-validation-for="Status" class="text-danger"></span>
     </div>
 
     <br />
 
     <div>
         <label>Date Applied</label>
-        <input asp-for="DateApplied" type="date" required />
+        <input asp-for="DateApplied" type="date" />
+        <span asp-validation-for="DateApplied" class="text-danger"></span>
     </div>
 
     <br />
@@ -56,8 +55,8 @@
     <br />
 
     <button type="submit">Save</button>
-
 </form>
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }

@@ -1,7 +1,8 @@
+using JobTrackingSystem.Areas.Identity.Data;
+using JobTrackingSystem.Data;
+using JobTrackingSystem.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using JobTrackingSystem.Data;
-using JobTrackingSystem.Areas.Identity.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,7 +22,7 @@ builder.Services.AddDefaultIdentity<JobTrackingSystemUser>(options =>
 // 4. MVC + Razor Pages (IMPORTANT)
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();   // 👈 YOU ARE PROBABLY MISSING THIS
-
+builder.Services.AddScoped<IJobApplicationService, JobApplicationService>();
 var app = builder.Build();
 
 
