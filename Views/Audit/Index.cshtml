@@ -1,0 +1,112 @@
+﻿@model List<JobTrackingSystem.Models.AuditLog>
+
+<h2>Audit Logs</h2>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Time</th>
+            <th>User</th>
+            <th>Action</th>
+            <th>Entity</th>
+            <th>IP</th>
+            <th>Device</th>
+            <th>Details</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var log in Model)
+        {
+            <tr>
+                <td>@log.Timestamp.ToLocalTime()</td>
+                <td>@log.UserId</td>
+                <td>
+                    <span class="badge bg-info">@log.Action</span>
+                </td>
+                <td>@log.EntityName (@log.EntityId)</td>
+                <td>@log.IpAddress</td>
+                <td style="max-width:200px;overflow:hidden;">
+                    @log.UserAgent
+                </td>
+                <td>
+                    <button class="btn btn-sm btn-dark"
+                            onclick="toggleDetails(@log.Id)">
+                        View
+                    </button>
+                </td>
+            </tr>
+
+            <tr id="details-@log.Id" style="display:none;">
+                <td colspan="7">
+                    <b>Changes:</b>
+                    <div>
+                        @Html.Raw(GetDiff(log.OldValues, log.NewValues))
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Pagination -->
+<div class="d-flex justify-content-between">
+    <div>
+        Page @ViewBag.CurrentPage of @ViewBag.TotalPages
+    </div>
+    <div>
+        @if (ViewBag.CurrentPage > 1)
+        {
+            <a class="btn btn-sm btn-primary"
+               href="?page=@(ViewBag.CurrentPage - 1)">Prev</a>
+        }
+
+        @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+        {
+            <a class="btn btn-sm btn-primary"
+               href="?page=@(ViewBag.CurrentPage + 1)">Next</a>
+        }
+    </div>
+</div>
+
+<script>
+    function toggleDetails(id) {
+        var row = document.getElementById("details-" + id);
+        row.style.display = row.style.display === "none" ? "table-row" : "none";
+    }
+</script>
+@functions {
+    public string GetDiff(string oldJson, string newJson)
+    {
+        try
+        {
+            if (string.IsNullOrEmpty(newJson))
+                return "<i>No changes</i>";
+
+            var oldDict = string.IsNullOrEmpty(oldJson)
+                ? new Dictionary<string, object>()
+                : System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(oldJson);
+
+            var newDict = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(newJson);
+
+            var result = "";
+
+            foreach (var key in newDict.Keys)
+            {
+                oldDict.TryGetValue(key, out var oldVal);
+                var newVal = newDict[key];
+
+                if ((oldVal?.ToString() ?? "") != (newVal?.ToString() ?? ""))
+                {
+                    result += $"<b>{key}</b>: {oldVal ?? "-"} → {newVal}<br/>";
+                }
+            }
+
+            return result == "" ? "<i>No actual changes</i>" : result;
+        }
+        catch
+        {
+            // 🔥 fallback for old logs
+            return $"<pre>{newJson}</pre>";
+        }
+    }
+}

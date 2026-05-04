@@ -15,4 +15,5 @@ public class JobApplication
     public string Status { get; set; }
     public DateTime DateApplied { get; set; }
     public string Notes { get; set; }
+    public bool IsDeleted { get; set; } = false;
 }

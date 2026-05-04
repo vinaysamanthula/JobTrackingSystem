@@ -1,0 +1,27 @@
+﻿@model List<JobTrackingSystem.Models.JobApplication>
+
+<h2>Deleted Applications</h2>
+
+<table class="table">
+    <tr>
+        <th>Company</th>
+        <th>Role</th>
+        <th>Action</th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.Company?.Name</td>
+            <td>@item.Role</td>
+            <td>
+                <form asp-action="Restore" method="post">
+                    <input type="hidden" name="id" value="@item.Id" />
+                    <button type="submit" class="btn btn-success btn-sm">
+                        Restore
+                    </button>
+                </form>
+            </td>
+        </tr>
+    }
+</table>

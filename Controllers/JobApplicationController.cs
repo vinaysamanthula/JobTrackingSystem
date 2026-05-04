@@ -1,49 +1,4 @@
-﻿//using JobTrackingSystem.Areas.Identity.Data;
-//using JobTrackingSystem.Data;
-//using JobTrackingSystem.Models;
-//using Microsoft.AspNetCore.Authorization;
-//using Microsoft.AspNetCore.Mvc;
-//using Microsoft.EntityFrameworkCore;
-//using System.Security.Claims;
-
-//namespace JobTrackingSystem.Controllers
-//{
-//    [Authorize]
-//    public class JobApplicationController : Controller
-//    {
-//        private readonly JobTrackingSystemContext _context;
-//        public JobApplicationController(JobTrackingSystemContext context)
-//        {
-//            _context = context;
-//        }
-
-//        public IActionResult Create()
-//        {
-//            ViewBag.Companies = _context.Companies.ToList();
-//            return View();
-//        }
-
-//        public IActionResult Index()
-//        {
-//            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-//            var data = _context.JobApplications
-//                .Include(j => j.Company)
-//                .Where(j => j.UserId == userId)   // 🔥 THIS IS THE KEY
-//                .ToList();
-
-//            return View(data);
-//        }
-
-//        [HttpPost]
-//        public IActionResult Create(JobApplication model)
-//        {
-//            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-//            model.UserId = userId;
-
-//            if (!ModelState.IsValid)
-//            {
-using JobTrackingSystem.Data;
+﻿using JobTrackingSystem.Data;
 using JobTrackingSystem.Models;
 using JobTrackingSystem.Services;
 using JobTrackingSystem.ViewModels;
@@ -58,19 +13,30 @@ public class JobApplicationController : Controller
 {
     private readonly IJobApplicationService _service;
     private readonly JobTrackingSystemContext _context;
+    private readonly ILogger<JobApplicationController> _logger;
 
     public JobApplicationController(
         IJobApplicationService service,
-        JobTrackingSystemContext context)
+        JobTrackingSystemContext context,
+        ILogger<JobApplicationController> logger)
     {
         _service = service;
         _context = context;
+        _logger = logger;
     }
 
     private string GetUserId() =>
         User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
-    // INDEX
+    // 🔥 NEW: REQUEST INFO (IP + DEVICE)
+    private (string ip, string userAgent) GetRequestInfo()
+    {
+        var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
+        var userAgent = Request.Headers["User-Agent"].ToString() ?? "Unknown";
+        return (ip, userAgent);
+    }
+
+    // ================= INDEX =================
     public async Task<IActionResult> Index()
     {
         var userId = GetUserId();
@@ -78,7 +44,7 @@ public class JobApplicationController : Controller
         return View(data);
     }
 
-    // CREATE (GET)
+    // ================= CREATE (GET) =================
     public IActionResult Create()
     {
         var vm = new JobApplicationCreateVm
@@ -94,7 +60,7 @@ public class JobApplicationController : Controller
         return View(vm);
     }
 
-    // CREATE (POST)
+    // ================= CREATE (POST) =================
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(JobApplicationCreateVm vm)
@@ -119,17 +85,20 @@ public class JobApplicationController : Controller
             Notes = vm.Notes
         };
 
-        await _service.CreateAsync(entity);
+        var (ip, userAgent) = GetRequestInfo();
+        await _service.CreateAsync(entity, ip, userAgent);
+
         return RedirectToAction(nameof(Index));
     }
 
+    // ================= EDIT (GET) =================
     [HttpGet]
     public async Task<IActionResult> Edit(int id)
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userId = GetUserId();
 
         var entity = await _service.GetByIdForUserAsync(id, userId);
-        if (entity == null) return NotFound(); // also enforces row-level security
+        if (entity == null) return NotFound();
 
         var vm = new JobApplicationEditVm
         {
@@ -152,15 +121,15 @@ public class JobApplicationController : Controller
         return View(vm);
     }
 
+    // ================= EDIT (POST) =================
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(JobApplicationEditVm model)
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userId = GetUserId();
 
         if (!ModelState.IsValid)
         {
-            // Refill dropdown or your view breaks
             model.Companies = await _context.Companies
                 .Select(c => new SelectListItem
                 {
@@ -172,135 +141,80 @@ public class JobApplicationController : Controller
             return View(model);
         }
 
-        // Fetch entity WITH user scope (security)
-        var entity = await _service.GetByIdForUserAsync(model.Id, userId);
-        if (entity == null) return NotFound();
+        var (ip, userAgent) = GetRequestInfo();
+        await _service.UpdateAsync(model, userId, ip, userAgent);
 
-        // Map VM → Entity (only allowed fields)
-        entity.CompanyId = model.CompanyId;
-        entity.Role = model.Role;
-        entity.Status = model.Status;
-        entity.DateApplied = model.DateApplied;
-        entity.Notes = model.Notes;
+        return RedirectToAction(nameof(Index));
+    }
 
-        await _service.UpdateAsync(entity);
+    // ================= SEARCH =================
+    public async Task<IActionResult> Search(JobApplicationSearchVm vm)
+    {
+        var userId = GetUserId();
 
-        return RedirectToAction(nameof(Index)); // don’t loop back to Edit
+        vm.Companies = _context.Companies
+            .Select(c => new SelectListItem
+            {
+                Value = c.Id.ToString(),
+                Text = c.Name
+            }).ToList();
+
+        var result = await _service.SearchAsync(userId, vm);
+
+        vm.Results = result.Item1;
+        vm.TotalCount = result.Item2;
+
+        return View(vm);
+    }
+
+    // ================= DELETE (GET) =================
+    public async Task<IActionResult> Delete(int id)
+    {
+        var userId = GetUserId();
+
+        var job = await _service.GetByIdForUserAsync(id, userId);
+        if (job == null) return NotFound();
+
+        return View(job);
+    }
+
+    // ================= DELETE (POST) =================
+    [HttpPost, ActionName("Delete")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteConfirmed(int id)
+    {
+        var userId = GetUserId();
+        var (ip, userAgent) = GetRequestInfo();
+
+        await _service.DeleteAsync(id, userId, ip, userAgent);
+
+        return RedirectToAction(nameof(Index));
+    }
+
+    // ================= RESTORE =================
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Restore(int id)
+    {
+        var userId = GetUserId();
+        var (ip, userAgent) = GetRequestInfo();
+
+        await _service.RestoreAsync(id, userId, ip, userAgent);
+
+        return RedirectToAction(nameof(Index));
+    }
+
+    // ================= DELETED LIST =================
+    public async Task<IActionResult> Deleted()
+    {
+        var userId = GetUserId();
+
+        var data = await _context.JobApplications
+            .IgnoreQueryFilters()
+            .Where(x => x.UserId == userId && x.IsDeleted)
+            .Include(x => x.Company)
+            .ToListAsync();
+
+        return View(data);
     }
 }
-//                ViewBag.Companies = _context.Companies.ToList();
-//                return View(model);
-//            }
-
-//            _context.JobApplications.Add(model);
-//            _context.SaveChanges();
-
-//            return RedirectToAction("Create");
-//        }
-
-
-//public IActionResult Edit(int id)
-//    {
-//        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-//        var job = _context.JobApplications
-//            .FirstOrDefault(j => j.Id == id && j.UserId == userId);
-
-//        if (job == null)
-//            return NotFound(); // 🔥 critical
-
-//        ViewBag.Companies = _context.Companies.ToList();
-
-//        return View(job);
-//    }
-//        //[HttpPost]
-//        //    public IActionResult Edit(JobApplication model)
-//        //    {
-//        //        var existing = _context.JobApplications.Find(model.Id);
-
-//        //        if (existing == null)
-//        //            return NotFound();
-
-//        //        // ✅ Update only allowed fields
-//        //        existing.CompanyId = model.CompanyId;
-//        //        existing.Role = model.Role;
-//        //        existing.Status = model.Status;
-//        //        existing.DateApplied = model.DateApplied;
-//        //        existing.Notes = model.Notes;
-
-//        //        // ❗ DO NOT TOUCH UserId
-
-//        //        _context.SaveChanges();
-
-//        //        return RedirectToAction("Index");
-//        //    }
-//        [HttpPost]
-//        public IActionResult Edit(JobApplication model)
-//        {
-//            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-//            var job = _context.JobApplications
-//                .FirstOrDefault(j => j.Id == model.Id && j.UserId == userId);
-
-//            if (job == null)
-//                return NotFound(); // 🔥 blocks tampering
-
-//            if (!ModelState.IsValid)
-//            {
-//                ViewBag.Companies = _context.Companies.ToList();
-//                return View(model);
-//            }
-
-//            job.CompanyId = model.CompanyId;
-//            job.Role = model.Role;
-//            job.Status = model.Status;
-//            job.DateApplied = model.DateApplied;
-//            job.Notes = model.Notes;
-
-//            _context.SaveChanges();
-
-//            return RedirectToAction("Index");
-//        }
-//        public IActionResult Delete(int id)
-//        {
-//            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-//            var job = _context.JobApplications
-//                .FirstOrDefault(j => j.Id == id && j.UserId == userId);
-
-//            if (job == null)
-//                return NotFound();
-
-//            return View(job);
-//            }
-//            //[HttpPost, ActionName("Delete")]
-//            //public IActionResult DeleteConfirmed(int id)
-//            //{
-//            //    var job = _context.JobApplications.Find(id);
-
-//            //    if (job != null)
-//            //    {
-//            //        _context.JobApplications.Remove(job);
-//            //        _context.SaveChanges();
-//            //    }
-
-//            //    return RedirectToAction("Index");
-//            //}
-//            [HttpPost, ActionName("Delete")]
-//            public IActionResult DeleteConfirmed(int id)
-//            {
-//                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-//                var job = _context.JobApplications
-//                    .FirstOrDefault(j => j.Id == id && j.UserId == userId);
-
-//                if (job == null)
-//                    return NotFound();
-
-//                _context.JobApplications.Remove(job);
-//                _context.SaveChanges();
-
-//                return RedirectToAction("Index");
-//            }
-//        }
-//}

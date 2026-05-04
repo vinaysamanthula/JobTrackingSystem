@@ -23,6 +23,12 @@ builder.Services.AddDefaultIdentity<JobTrackingSystemUser>(options =>
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();   // 👈 YOU ARE PROBABLY MISSING THIS
 builder.Services.AddScoped<IJobApplicationService, JobApplicationService>();
+// ✅ LOGGING MUST BE HERE (TOP)
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.AddDebug();
+// 🔥 Filter noisy logs
+builder.Logging.AddFilter("Microsoft.EntityFrameworkCore", LogLevel.Warning);
 var app = builder.Build();
 
 
