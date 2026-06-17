@@ -1,8 +1,215 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
+﻿@model JobTrackingSystem.ViewModels.DashboardVm
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container py-4">
+    <!-- Header Section -->
+    <div class="row align-items-center mb-4">
+        <div class="col-md-8">
+            <div class="d-flex align-items-center gap-3">
+                <div class="bg-primary bg-opacity-10 p-3 rounded-3">
+                    <i class="bi bi-grid-3x3-gap-fill text-primary fs-2"></i>
+                </div>
+                <div>
+                    <h1 class="display-6 fw-bold mb-1">Dashboard</h1>
+                    <p class="text-muted mb-0">
+                        <i class="bi bi-clock-history me-1"></i>
+                        Track your job application journey at a glance
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+            <span class="badge bg-light text-dark border px-3 py-2">
+                <i class="bi bi-calendar3 me-1"></i>
+                @DateTime.Now.ToString("dddd, MMM dd")
+            </span>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row g-4">
+        <!-- Total -->
+        <div class="col-xl-2 col-lg-4 col-md-4 col-sm-6">
+            <a asp-controller="JobApplication"
+               asp-action="Index"
+               class="text-decoration-none d-block">
+                <div class="card h-100 border-0 shadow-sm hover-shadow transition-all">
+                    <div class="card-body text-center p-4">
+                        <div class="d-flex align-items-center justify-content-center mb-2">
+                            <div class="bg-primary bg-opacity-10 p-2 rounded-circle">
+                                <i class="bi bi-briefcase fs-4 text-primary"></i>
+                            </div>
+                        </div>
+                        <h6 class="text-muted text-uppercase fw-semibold small mb-1">Total</h6>
+                        <h2 class="display-4 fw-bold mb-0 text-primary">@Model.Total</h2>
+                        <span class="badge bg-primary bg-opacity-10 text-primary mt-2">
+                            All applications
+                        </span>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Applied -->
+        <div class="col-xl-2 col-lg-4 col-md-4 col-sm-6">
+            <a asp-controller="JobApplication"
+               asp-action="Index"
+               asp-route-status="Applied"
+               class="text-decoration-none d-block">
+                <div class="card h-100 border-0 shadow-sm hover-shadow transition-all border-start border-4 border-info">
+                    <div class="card-body text-center p-4">
+                        <div class="d-flex align-items-center justify-content-center mb-2">
+                            <div class="bg-info bg-opacity-10 p-2 rounded-circle">
+                                <i class="bi bi-send fs-4 text-info"></i>
+                            </div>
+                        </div>
+                        <h6 class="text-muted text-uppercase fw-semibold small mb-1">Applied</h6>
+                        <h2 class="display-4 fw-bold mb-0 text-info">@Model.Applied</h2>
+                        <span class="badge bg-info bg-opacity-10 text-info mt-2">
+                            In progress
+                        </span>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Interview -->
+        <div class="col-xl-2 col-lg-4 col-md-4 col-sm-6">
+            <a asp-controller="JobApplication"
+               asp-action="Index"
+               asp-route-status="Interview"
+               class="text-decoration-none d-block">
+                <div class="card h-100 border-0 shadow-sm hover-shadow transition-all border-start border-4 border-warning">
+                    <div class="card-body text-center p-4">
+                        <div class="d-flex align-items-center justify-content-center mb-2">
+                            <div class="bg-warning bg-opacity-10 p-2 rounded-circle">
+                                <i class="bi bi-chat-dots fs-4 text-warning"></i>
+                            </div>
+                        </div>
+                        <h6 class="text-muted text-uppercase fw-semibold small mb-1">Interview</h6>
+                        <h2 class="display-4 fw-bold mb-0 text-warning">@Model.Interview</h2>
+                        <span class="badge bg-warning bg-opacity-10 text-warning mt-2">
+                            Active interviews
+                        </span>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Offer -->
+        <div class="col-xl-2 col-lg-4 col-md-4 col-sm-6">
+            <a asp-controller="JobApplication"
+               asp-action="Index"
+               asp-route-status="Offer"
+               class="text-decoration-none d-block">
+                <div class="card h-100 border-0 shadow-sm hover-shadow transition-all border-start border-4 border-success">
+                    <div class="card-body text-center p-4">
+                        <div class="d-flex align-items-center justify-content-center mb-2">
+                            <div class="bg-success bg-opacity-10 p-2 rounded-circle">
+                                <i class="bi bi-trophy fs-4 text-success"></i>
+                            </div>
+                        </div>
+                        <h6 class="text-muted text-uppercase fw-semibold small mb-1">Offer</h6>
+                        <h2 class="display-4 fw-bold mb-0 text-success">@Model.Offer</h2>
+                        <span class="badge bg-success bg-opacity-10 text-success mt-2">
+                            Great news!
+                        </span>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Rejected -->
+        <div class="col-xl-2 col-lg-4 col-md-4 col-sm-6">
+            <a asp-controller="JobApplication"
+               asp-action="Index"
+               asp-route-status="Rejected"
+               class="text-decoration-none d-block">
+                <div class="card h-100 border-0 shadow-sm hover-shadow transition-all border-start border-4 border-danger">
+                    <div class="card-body text-center p-4">
+                        <div class="d-flex align-items-center justify-content-center mb-2">
+                            <div class="bg-danger bg-opacity-10 p-2 rounded-circle">
+                                <i class="bi bi-x-circle fs-4 text-danger"></i>
+                            </div>
+                        </div>
+                        <h6 class="text-muted text-uppercase fw-semibold small mb-1">Rejected</h6>
+                        <h2 class="display-4 fw-bold mb-0 text-danger">@Model.Rejected</h2>
+                        <span class="badge bg-danger bg-opacity-10 text-danger mt-2">
+                            Keep going!
+                        </span>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Quick Stats Summary -->
+        <div class="col-xl-2 col-lg-4 col-md-4 col-sm-6">
+            <div class="card h-100 border-0 shadow-sm bg-gradient-primary text-white">
+                <div class="card-body text-center p-4 d-flex flex-column justify-content-center">
+                    <i class="bi bi-graph-up-arrow fs-1 mb-2"></i>
+                    <h6 class="text-uppercase fw-semibold small opacity-75">Success Rate</h6>
+                    <h2 class="display-4 fw-bold mb-0">
+                        @(Model.Total > 0 ? Math.Round((decimal)Model.Offer / Model.Total * 100) : 0)%
+                    </h2>
+                    <span class="badge bg-white bg-opacity-25 text-white mt-2">
+                        Offers / Total
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity Section -->
+    <div class="card border-0 shadow-sm mt-4">
+        <div class="card-header bg-transparent border-bottom d-flex justify-content-between align-items-center py-3">
+            <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-activity text-primary fs-4"></i>
+                <h5 class="fw-bold mb-0">Recent Activity</h5>
+            </div>
+            <span class="badge bg-primary bg-opacity-10 text-primary">
+                <i class="bi bi-clock me-1"></i>
+                Latest updates
+            </span>
+        </div>
+
+        <div class="card-body p-0">
+            @if (Model.RecentActivities.Any())
+            {
+                <div class="list-group list-group-flush">
+                    @foreach (var item in Model.RecentActivities)
+                    {
+                        <div class="list-group-item d-flex justify-content-between align-items-center py-3 px-4 hover-bg-light transition-all">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="bg-primary bg-opacity-10 p-2 rounded-circle">
+                                    <i class="bi bi-check-circle text-primary"></i>
+                                </div>
+                                <div>
+                                    <p class="fw-semibold mb-0">
+                                        @(string.IsNullOrEmpty(item.Description)
+                                            ? "Legacy Activity"
+                                            : item.Description)
+                                    </p>
+                                    <small class="text-muted">
+                                        <i class="bi bi-tag me-1"></i>
+                                        Activity update
+                                    </small>
+                                </div>
+                            </div>
+                            <span class="text-muted small">
+                                <i class="bi bi-clock me-1"></i>
+                                @item.Timestamp.ToLocalTime().ToString("dd MMM yyyy hh:mm tt")
+                            </span>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="bi bi-inbox fs-1 text-muted"></i>
+                    <p class="text-muted mb-0 mt-2">No recent activity found.</p>
+                    <small class="text-muted">Start tracking your applications to see updates here</small>
+                </div>
+            }
+        </div>
+    </div>
 </div>

@@ -1,15 +1,62 @@
 ﻿@model JobTrackingSystem.Models.JobApplication
 
-<h2>Delete Confirmation</h2>
+<div class="container py-4">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex align-items-center gap-3">
+                <div class="bg-danger bg-opacity-10 p-3 rounded-3">
+                    <i class="bi bi-exclamation-triangle-fill text-danger fs-2"></i>
+                </div>
+                <div>
+                    <h1 class="display-6 fw-bold mb-1">Delete Confirmation</h1>
+                    <p class="text-muted mb-0">
+                        <i class="bi bi-trash me-1"></i>
+                        This action cannot be undone
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<p>Are you sure you want to delete this?</p>
+    <!-- Confirmation Card -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-4 p-md-5 text-center">
+            <div class="mb-4">
+                <div class="bg-danger bg-opacity-10 p-4 rounded-circle d-inline-block">
+                    <i class="bi bi-trash-fill text-danger fs-1"></i>
+                </div>
+            </div>
 
-<div>
-    <strong>@Model.Company?.Name</strong> - @Model.Role
+            <h4 class="fw-bold mb-2">Are you sure you want to delete this application?</h4>
+            <p class="text-muted mb-4">This will permanently remove the job application from your tracking system.</p>
+
+            <div class="card border-danger mb-4 mx-auto" style="max-width: 500px;">
+                <div class="card-body bg-danger bg-opacity-10">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="fw-bold mb-1">@Model.Company?.Name</h6>
+                            <p class="mb-0 text-muted">@Model.Role</p>
+                        </div>
+                        <span class="badge bg-secondary">
+                            <i class="bi bi-calendar me-1"></i>
+                            @Model.DateApplied.ToString("dd MMM yyyy")
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <form asp-action="Delete" method="post">
+                <input type="hidden" asp-for="Id" />
+                <div class="d-flex gap-3 justify-content-center">
+                    <a asp-action="Index" class="btn btn-outline-secondary px-4">
+                        <i class="bi bi-x-lg me-1"></i> Cancel
+                    </a>
+                    <button type="submit" class="btn btn-danger px-4">
+                        <i class="bi bi-trash me-1"></i> Delete Permanently
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
-
-<form asp-action="Delete" method="post">
-    <input type="hidden" asp-for="Id" />
-    <button type="submit" class="btn btn-danger">Delete</button>
-    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
-</form> 

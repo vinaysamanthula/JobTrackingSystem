@@ -1,32 +1,61 @@
-using JobTrackingSystem.Models;
+using JobTrackingSystem.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
-
+using Microsoft.EntityFrameworkCore;
+using JobTrackingSystem.ViewModels;
 namespace JobTrackingSystem.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly JobTrackingSystemContext _context;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(JobTrackingSystemContext context)
         {
-            _logger = logger;
+            _context = context;
         }
 
-        public IActionResult Index()
+        // 🔥 THIS IS YOUR DASHBOARD
+        public async Task<IActionResult> Index()
         {
-            return View();
-        }
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
+            var total = await _context.JobApplications
+                .CountAsync(x => x.UserId == userId && !x.IsDeleted);
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            var applied = await _context.JobApplications
+                .CountAsync(x => x.UserId == userId && x.Status == "Applied");
+
+            var interview = await _context.JobApplications
+                .CountAsync(x => x.UserId == userId && x.Status == "Interview");
+
+            var offer = await _context.JobApplications
+                .CountAsync(x => x.UserId == userId && x.Status == "Offer");
+
+            var rejected = await _context.JobApplications
+                .CountAsync(x => x.UserId == userId && x.Status == "Rejected");
+
+            var model = new DashboardVm
+            {
+                Total = total,
+                Applied = applied,
+                Interview = interview,
+                Offer = offer,
+                Rejected = rejected
+            };
+            model.RecentActivities = await _context.AuditLogs
+         .Where(x => x.UserId == userId &&
+                     !string.IsNullOrEmpty(x.Description))
+         .OrderByDescending(x => x.Timestamp)
+         .Take(5)
+         .Select(x => new RecentActivityVm
+         {
+             Description = x.Description,
+             Timestamp = x.Timestamp
+         })
+         .ToListAsync();    
+
+            return View(model);
         }
     }
 }

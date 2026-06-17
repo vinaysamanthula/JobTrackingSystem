@@ -6,76 +6,530 @@
     <title>@ViewData["Title"] - JobTrackingSystem</title>
 
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/JobTrackingSystem.styles.css" asp-append-version="true" />
+
+    <style>
+            /* Custom Navbar Styles */
+            .navbar-custom {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+                padding: 0.75rem 0;
+            }
+
+                .navbar-custom .navbar-brand {
+                    font-size: 1.5rem;
+                    font-weight: 700;
+                    color: #fff;
+                    transition: all 0.3s ease;
+                }
+
+                    .navbar-custom .navbar-brand:hover {
+                        transform: scale(1.05);
+                        color: #fff;
+                    }
+
+                    .navbar-custom .navbar-brand i {
+                        margin-right: 8px;
+                    }
+
+                .navbar-custom .nav-link {
+                    color: rgba(255, 255, 255, 0.85) !important;
+                    font-weight: 500;
+                    padding: 0.5rem 1rem;
+                    border-radius: 8px;
+                    transition: all 0.3s ease;
+                    position: relative;
+                }
+
+                    .navbar-custom .nav-link:hover {
+                        color: #fff !important;
+                        background: rgba(255, 255, 255, 0.15);
+                        transform: translateY(-2px);
+                    }
+
+                    .navbar-custom .nav-link i {
+                        margin-right: 6px;
+                    }
+
+                    .navbar-custom .nav-link.active {
+                        background: rgba(255, 255, 255, 0.2);
+                        color: #fff !important;
+                    }
+
+                    .navbar-custom .nav-link::after {
+                        content: '';
+                        position: absolute;
+                        bottom: 0;
+                        left: 50%;
+                        width: 0;
+                        height: 3px;
+                        background: #fff;
+                        border-radius: 2px;
+                        transition: all 0.3s ease;
+                        transform: translateX(-50%);
+                    }
+
+                    .navbar-custom .nav-link:hover::after {
+                        width: 60%;
+                    }
+
+                    .navbar-custom .nav-link.active::after {
+                        width: 60%;
+                    }
+
+                .navbar-custom .navbar-text {
+                    color: rgba(255, 255, 255, 0.9) !important;
+                    font-weight: 500;
+                }
+
+                .navbar-custom .btn-outline-light {
+                    border-color: rgba(255, 255, 255, 0.5);
+                    color: #fff;
+                    transition: all 0.3s ease;
+                    padding: 0.375rem 1.25rem;
+                    border-radius: 20px;
+                }
+
+                    .navbar-custom .btn-outline-light:hover {
+                        background: #fff;
+                        color: #667eea;
+                        transform: scale(1.05);
+                        box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);
+                    }
+
+                .navbar-custom .navbar-toggler {
+                    border-color: rgba(255, 255, 255, 0.5);
+                    padding: 0.5rem 0.75rem;
+                }
+
+                .navbar-custom .navbar-toggler-icon {
+                    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(255, 255, 255, 0.9)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+                }
+
+            /* User Avatar */
+            .user-avatar {
+                width: 32px;
+                height: 32px;
+                background: rgba(255, 255, 255, 0.2);
+                border-radius: 50%;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                margin-right: 8px;
+                border: 2px solid rgba(255, 255, 255, 0.3);
+            }
+
+                .user-avatar i {
+                    font-size: 1rem;
+                }
+
+            /* Footer Styles */
+            .footer-custom {
+                background: linear-gradient(135deg, #2d3436 0%, #1a1a2e 100%);
+                color: rgba(255, 255, 255, 0.8);
+                padding: 2rem 0;
+                margin-top: 3rem;
+                border-top: 3px solid #667eea;
+            }
+
+                .footer-custom .footer-brand {
+                    font-size: 1.25rem;
+                    font-weight: 700;
+                    color: #fff;
+                    text-decoration: none;
+                }
+
+                    .footer-custom .footer-brand i {
+                        color: #667eea;
+                        margin-right: 8px;
+                    }
+
+                .footer-custom .footer-links {
+                    list-style: none;
+                    padding: 0;
+                    margin: 0;
+                    display: flex;
+                    gap: 1.5rem;
+                    flex-wrap: wrap;
+                }
+
+                    .footer-custom .footer-links a {
+                        color: rgba(255, 255, 255, 0.7);
+                        text-decoration: none;
+                        transition: all 0.3s ease;
+                        font-weight: 400;
+                        position: relative;
+                    }
+
+                        .footer-custom .footer-links a:hover {
+                            color: #fff;
+                            transform: translateY(-2px);
+                        }
+
+                        .footer-custom .footer-links a::after {
+                            content: '';
+                            position: absolute;
+                            bottom: -2px;
+                            left: 0;
+                            width: 0;
+                            height: 2px;
+                            background: #667eea;
+                            transition: width 0.3s ease;
+                        }
+
+                        .footer-custom .footer-links a:hover::after {
+                            width: 100%;
+                        }
+
+                .footer-custom .footer-divider {
+                    border-color: rgba(255, 255, 255, 0.1);
+                    margin: 1.5rem 0;
+                }
+
+                .footer-custom .social-icons {
+                    display: flex;
+                    gap: 0.75rem;
+                    justify-content: flex-end;
+                }
+
+                    .footer-custom .social-icons a {
+                        display: inline-flex;
+                        align-items: center;
+                        justify-content: center;
+                        width: 38px;
+                        height: 38px;
+                        background: rgba(255, 255, 255, 0.1);
+                        border-radius: 50%;
+                        color: rgba(255, 255, 255, 0.7);
+                        text-decoration: none;
+                        transition: all 0.3s ease;
+                    }
+
+                        .footer-custom .social-icons a:hover {
+                            background: #667eea;
+                            color: #fff;
+                            transform: translateY(-3px);
+                            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+                        }
+
+                .footer-custom .copyright {
+                    color: rgba(255, 255, 255, 0.5);
+                    font-size: 0.9rem;
+                }
+
+            /* Responsive */
+            @@media (max-width: 768px) {
+                .navbar-custom .nav-link {
+                    padding: 0.6rem 0.75rem;
+                }
+
+                    .navbar-custom .nav-link::after {
+                        display: none;
+                    }
+
+                .footer-custom .footer-links {
+                    justify-content: center;
+                    margin-top: 1rem;
+                }
+
+                .footer-custom .social-icons {
+                    justify-content: center;
+                    margin-top: 1rem;
+                }
+
+                .footer-custom .text-md-end {
+                    text-align: center !important;
+                }
+
+                .navbar-custom .navbar-text {
+                    display: block;
+                    text-align: center;
+                    margin: 0.5rem 0;
+                }
+
+                .navbar-custom .btn-outline-light {
+                    width: 100%;
+                }
+            }
+
+            /* Main content spacing */
+            main {
+                min-height: calc(100vh - 220px);
+                padding: 1.5rem 0;
+            }
+
+            /* Scroll to top button */
+            .scroll-top {
+                position: fixed;
+                bottom: 2rem;
+                right: 2rem;
+                width: 45px;
+                height: 45px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: #fff;
+                border: none;
+                border-radius: 50%;
+                font-size: 1.25rem;
+                cursor: pointer;
+                opacity: 0;
+                visibility: hidden;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+                z-index: 1000;
+            }
+
+                .scroll-top.visible {
+                    opacity: 1;
+                    visibility: visible;
+                }
+
+                .scroll-top:hover {
+                    transform: translateY(-5px) scale(1.05);
+                    box-shadow: 0 6px 25px rgba(102, 126, 234, 0.6);
+                }
+    </style>
 </head>
 
 <body>
+    <!-- Navbar -->
     <header>
-        <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom mb-3">
-            <div class="container-fluid">
-
+        <nav class="navbar navbar-expand-lg navbar-custom">
+            <div class="container">
                 <a class="navbar-brand" asp-controller="Home" asp-action="Index">
-                    JobTrackingSystem
+                    <i class="bi bi-briefcase-fill"></i>
+                    JobTracker
                 </a>
-                <a asp-controller="JobApplication" asp-action="Deleted">Deleted</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+
+                <button class="navbar-toggler"
+                        type="button"
+                        data-bs-toggle="collapse"
                         data-bs-target="#mainNavbar">
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
-                <div class="collapse navbar-collapse justify-content-between" id="mainNavbar">
-
-                    <!-- LEFT -->
-                    <ul class="navbar-nav">
+                <div class="collapse navbar-collapse" id="mainNavbar">
+                    <ul class="navbar-nav me-auto">
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Audit" asp-action="Index">
-                                Audit Logs
+                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Home" ? "active" : "")"
+                               asp-controller="Home" asp-action="Index">
+                                <i class="bi bi-speedometer2"></i> Dashboard
                             </a>
                         </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "JobApplication" && ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")"
+                               asp-controller="JobApplication" asp-action="Index">
+                                <i class="bi bi-list-check"></i> Applications
+                            </a>
+                        </li>
+
+                       
+
+                        <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Audit" ? "active" : "")"
+                               asp-controller="Audit" asp-action="Index">
+                                <i class="bi bi-clock-history"></i> Audit Logs
+                            </a>
+                        </li>
+
+                        @* <li class="nav-item">
+                            <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Company" ? "active" : "")"
+                               asp-controller="Company" asp-action="Index">
+                                <i class="bi bi-building"></i> Companies
+                            </a>
+                        </li> *@
                     </ul>
 
-                    <!-- RIGHT -->
-                    <ul class="navbar-nav">
-                        @if (User.Identity.IsAuthenticated)
-                        {
+                    @if (User.Identity?.IsAuthenticated ?? false)
+                    {
+                        <ul class="navbar-nav">
+                            <li class="nav-item me-3">
+                                <span class="navbar-text">
+                                    <span class="user-avatar">
+                                        <i class="bi bi-person-fill"></i>
+                                    </span>
+                                    @User.Identity.Name
+                                </span>
+                            </li>
+
                             <li class="nav-item">
-                                <form asp-area="Identity" asp-page="/Account/Logout" method="post">
+                                <form asp-area="Identity"
+                                      asp-page="/Account/Logout"
+                                      method="post">
                                     @Html.AntiForgeryToken()
-                                    <button type="submit" class="btn btn-link nav-link">
-                                        Logout
+                                    <button type="submit" class="btn btn-outline-light btn-sm">
+                                        <i class="bi bi-box-arrow-right me-1"></i> Logout
                                     </button>
                                 </form>
                             </li>
-                        }
-                    </ul>
-
+                        </ul>
+                    }
+                    else
+                    {
+                        <ul class="navbar-nav">
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="Identity" asp-page="/Account/Login">
+                                    <i class="bi bi-box-arrow-in-right"></i> Login
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="Identity" asp-page="/Account/Register">
+                                    <i class="bi bi-person-plus"></i> Register
+                                </a>
+                            </li>
+                        </ul>
+                    }
                 </div>
             </div>
         </nav>
     </header>
 
+    <!-- Main Content -->
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
+    <!-- Footer -->
+    <footer class="footer-custom">
         <div class="container">
-            &copy; 2026 - JobTrackingSystem
+            <div class="row align-items-center">
+                <div class="col-lg-4 col-md-6 text-center text-md-start">
+                    <a class="footer-brand" asp-controller="Home" asp-action="Index">
+                        <i class="bi bi-briefcase-fill"></i>
+                        JobTracker
+                    </a>
+                    <p class="mt-2 copyright">
+                        <i class="bi bi-clock me-1"></i>
+                        Track your career journey with ease
+                    </p>
+                </div>
+
+                <div class="col-lg-4 col-md-6 text-center mt-3 mt-md-0">
+                    <ul class="footer-links justify-content-center justify-content-md-center">
+                        <li><a asp-controller="Home" asp-action="Index">Home</a></li>
+                        <li><a asp-controller="JobApplication" asp-action="Index">Applications</a></li>
+                        <li><a asp-controller="JobApplication" asp-action="Create">Add New</a></li>
+                        <li><a href="#" data-bs-toggle="modal" data-bs-target="#privacyModal">Privacy</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-4 col-md-12 text-center text-lg-end mt-3 mt-lg-0">
+                    <div class="social-icons justify-content-center justify-content-lg-end">
+                        <a href="#" title="GitHub" target="_blank">
+                            <i class="bi bi-github"></i>
+                        </a>
+                        <a href="#" title="Twitter" target="_blank">
+                            <i class="bi bi-twitter-x"></i>
+                        </a>
+                        <a href="#" title="LinkedIn" target="_blank">
+                            <i class="bi bi-linkedin"></i>
+                        </a>
+                        <a href="#" title="YouTube" target="_blank">
+                            <i class="bi bi-youtube"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="footer-divider" />
+
+            <div class="row">
+                <div class="col-md-6 text-center text-md-start">
+                    <p class="copyright mb-0">
+                        &copy; @DateTime.Now.Year JobTracker - All Rights Reserved
+                    </p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <p class="copyright mb-0">
+                        <i class="bi bi-code-slash me-1"></i>
+                        Built with <i class="bi bi-heart-fill text-danger"></i> using ASP.NET Core
+                    </p>
+                </div>
+            </div>
         </div>
     </footer>
+
+    <!-- Scroll to Top Button -->
+    <button id="scrollTopBtn" class="scroll-top" title="Go to top">
+        <i class="bi bi-chevron-up"></i>
+    </button>
+
+    <!-- Privacy Modal -->
+    <div class="modal fade" id="privacyModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Privacy Policy</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Your data is stored securely and used only for tracking your job applications. We do not share your information with third parties.</p>
+                    <p class="text-muted small">Last updated: @DateTime.Now.ToString("MMMM dd, yyyy")</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Got it</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js"></script>
+
+    <script>
+        // Scroll to Top functionality
+        const scrollBtn = document.getElementById('scrollTopBtn');
+
+        window.addEventListener('scroll', function() {
+        if (window.scrollY > 300) {
+        scrollBtn.classList.add('visible');
+        } else {
+        scrollBtn.classList.remove('visible');
+        }
+        });
+
+        scrollBtn.addEventListener('click', function() {
+        window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+        });
+        });
+
+        // Auto-close mobile menu after clicking a link
+        document.addEventListener('DOMContentLoaded', function() {
+        const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
+        const navbarCollapse = document.getElementById('mainNavbar');
+
+        navLinks.forEach(function(link) {
+        link.addEventListener('click', function() {
+        if (window.innerWidth < 992) {
+        const bsCollapse = bootstrap.Collapse.getInstance(navbarCollapse);
+        if (bsCollapse) {
+        bsCollapse.hide();
+        }
+        }
+        });
+        });
+        });
+
+        // Add active class to current nav item dynamically
+        document.addEventListener('DOMContentLoaded', function() {
+        const currentPath = window.location.pathname;
+        const navItems = document.querySelectorAll('.navbar-nav .nav-link');
+
+        navItems.forEach(function(item) {
+        const href = item.getAttribute('href');
+        if (href && href !== '#' && currentPath.startsWith(href)) {
+        item.classList.add('active');
+        }
+        });
+        });
+    </script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

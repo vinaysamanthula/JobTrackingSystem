@@ -1,112 +1,629 @@
-﻿@model List<JobTrackingSystem.Models.AuditLog>
+﻿@model List<JobTrackingSystem.ViewModels.AuditLogVm>
 
-<h2>Audit Logs</h2>
+@{
+    ViewData["Title"] = "Audit Logs";
+    
+    // Calculate stats
+    var totalLogs = Model.Count;
+    var createCount = Model.Count(l => l.Action == "Create");
+    var updateCount = Model.Count(l => l.Action == "Update");
+    var deleteCount = Model.Count(l => l.Action == "Delete");
+}
 
-<table class="table table-bordered table-striped">
-    <thead>
-        <tr>
-            <th>Time</th>
-            <th>User</th>
-            <th>Action</th>
-            <th>Entity</th>
-            <th>IP</th>
-            <th>Device</th>
-            <th>Details</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var log in Model)
-        {
-            <tr>
-                <td>@log.Timestamp.ToLocalTime()</td>
-                <td>@log.UserId</td>
-                <td>
-                    <span class="badge bg-info">@log.Action</span>
-                </td>
-                <td>@log.EntityName (@log.EntityId)</td>
-                <td>@log.IpAddress</td>
-                <td style="max-width:200px;overflow:hidden;">
-                    @log.UserAgent
-                </td>
-                <td>
-                    <button class="btn btn-sm btn-dark"
-                            onclick="toggleDetails(@log.Id)">
-                        View
-                    </button>
-                </td>
-            </tr>
-
-            <tr id="details-@log.Id" style="display:none;">
-                <td colspan="7">
-                    <b>Changes:</b>
-                    <div>
-                        @Html.Raw(GetDiff(log.OldValues, log.NewValues))
+<div class="container py-4">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bg-info bg-opacity-10 p-3 rounded-3">
+                        <i class="bi bi-clock-history text-info fs-2"></i>
                     </div>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
-
-<!-- Pagination -->
-<div class="d-flex justify-content-between">
-    <div>
-        Page @ViewBag.CurrentPage of @ViewBag.TotalPages
+                    <div>
+                        <h1 class="display-6 fw-bold mb-1">Audit Logs</h1>
+                        <p class="text-muted mb-0">
+                            <i class="bi bi-shield-check me-1"></i>
+                            Track all activities and changes in the system
+                        </p>
+                    </div>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-secondary" onclick="window.location.reload()">
+                        <i class="bi bi-arrow-clockwise me-1"></i> Refresh
+                    </button>
+                    <span class="badge bg-info bg-opacity-10 text-info d-flex align-items-center px-3">
+                        <i class="bi bi-file-text me-1"></i>
+                        @totalLogs logs
+                    </span>
+                </div>
+            </div>
+        </div>
     </div>
-    <div>
-        @if (ViewBag.CurrentPage > 1)
-        {
-            <a class="btn btn-sm btn-primary"
-               href="?page=@(ViewBag.CurrentPage - 1)">Prev</a>
-        }
 
-        @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+    <!-- Stats Summary -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3 col-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center p-3">
+                    <div class="d-flex align-items-center justify-content-center mb-1">
+                        <div class="bg-primary bg-opacity-10 p-2 rounded-circle">
+                            <i class="bi bi-list-ul text-primary"></i>
+                        </div>
+                    </div>
+                    <h6 class="text-muted small text-uppercase fw-semibold mb-0">Total Logs</h6>
+                    <h4 class="fw-bold mb-0 text-primary">@totalLogs</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center p-3">
+                    <div class="d-flex align-items-center justify-content-center mb-1">
+                        <div class="bg-success bg-opacity-10 p-2 rounded-circle">
+                            <i class="bi bi-plus-circle text-success"></i>
+                        </div>
+                    </div>
+                    <h6 class="text-muted small text-uppercase fw-semibold mb-0">Creates</h6>
+                    <h4 class="fw-bold mb-0 text-success">@createCount</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center p-3">
+                    <div class="d-flex align-items-center justify-content-center mb-1">
+                        <div class="bg-warning bg-opacity-10 p-2 rounded-circle">
+                            <i class="bi bi-pencil text-warning"></i>
+                        </div>
+                    </div>
+                    <h6 class="text-muted small text-uppercase fw-semibold mb-0">Updates</h6>
+                    <h4 class="fw-bold mb-0 text-warning">@updateCount</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center p-3">
+                    <div class="d-flex align-items-center justify-content-center mb-1">
+                        <div class="bg-danger bg-opacity-10 p-2 rounded-circle">
+                            <i class="bi bi-trash text-danger"></i>
+                        </div>
+                    </div>
+                    <h6 class="text-muted small text-uppercase fw-semibold mb-0">Deletes</h6>
+                    <h4 class="fw-bold mb-0 text-danger">@deleteCount</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter/Search Bar -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-3">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <div class="form-floating">
+                        <input type="text" id="searchInput" class="form-control" placeholder="Search by user, action, entity..." />
+                        <label for="searchInput">
+                            <i class="bi bi-search me-1"></i> Search Logs
+                        </label>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-floating">
+                        <select id="actionFilter" class="form-select">
+                            <option value="">All Actions</option>
+                            <option value="Create">Create</option>
+                            <option value="Update">Update</option>
+                            <option value="Delete">Delete</option>
+                        </select>
+                        <label for="actionFilter">
+                            <i class="bi bi-tag me-1"></i> Action
+                        </label>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-floating">
+                        <input type="date" id="fromDate" class="form-control" />
+                        <label for="fromDate">
+                            <i class="bi bi-calendar-start me-1"></i> From Date
+                        </label>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <button id="filterButton" class="btn btn-primary w-100">
+                        <i class="bi bi-filter me-1"></i> Filter
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audit Logs Table -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" id="auditTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="min-width: 130px;"><i class="bi bi-clock me-1"></i> Time</th>
+                            <th><i class="bi bi-person me-1"></i> User</th>
+                            <th><i class="bi bi-tag me-1"></i> Action</th>
+                            <th><i class="bi bi-building me-1"></i> Entity</th>
+                            <th><i class="bi bi-globe me-1"></i> IP Address</th>
+                            <th><i class="bi bi-device-desktop me-1"></i> Device</th>
+                            <th class="text-center" style="min-width: 80px;"><i class="bi bi-info-circle me-1"></i> Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Any())
+                        {
+                            var counter = 0;
+                            @foreach (var log in Model)
+                            {
+                                counter++;
+                                <tr class="log-row" data-action="@log.Action" data-search="@($"{log.UserEmail} {log.Action} {log.EntityName} {log.CompanyName}".ToLower())">
+                                    <td>
+                                        <div class="d-flex flex-column">
+                                            <span class="fw-semibold">@log.Timestamp.ToString("dd MMM yyyy")</span>
+                                            <small class="text-muted">@log.Timestamp.ToString("hh:mm tt")</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;">
+                                                <i class="bi bi-person-circle text-primary"></i>
+                                            </div>
+                                            <span>@log.UserEmail</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @if (log.Action == "Create")
+                                        {
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-plus-circle me-1"></i> Created
+                                            </span>
+                                        }
+                                        else if (log.Action == "Update")
+                                        {
+                                            <span class="badge bg-warning text-dark">
+                                                <i class="bi bi-pencil me-1"></i> Updated
+                                            </span>
+                                        }
+                                        else if (log.Action == "Delete")
+                                        {
+                                            <span class="badge bg-danger">
+                                                <i class="bi bi-trash me-1"></i> Deleted
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">@log.Action</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(log.CompanyName))
+                                        {
+                                            <div class="d-flex flex-column">
+                                                <span class="fw-semibold">@log.CompanyName</span>
+                                                <small class="text-muted">@log.EntityName</small>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <span>@log.EntityName</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <code class="small bg-light p-1 rounded">@log.IpAddress</code>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-light text-dark border">
+                                            @{
+                                                var browserIcon = "browser";
+                                                var ua = log.UserAgent?.ToLower() ?? "";
+                                                if (ua.Contains("chrome") && !ua.Contains("edg")) browserIcon = "chrome";
+                                                else if (ua.Contains("firefox")) browserIcon = "firefox";
+                                                else if (ua.Contains("edge")) browserIcon = "edge";
+                                                else if (ua.Contains("safari")) browserIcon = "safari";
+                                            }
+                                            <i class="bi bi-@browserIcon me-1"></i>
+                                            @FormatDevice(log.UserAgent)
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary w-100 toggle-details" 
+                                                data-id="@counter">
+                                            <i class="bi bi-eye me-1"></i> View
+                                        </button>
+                                    </td>
+                                </tr>
+
+                                <!-- Details Row -->
+                                <tr id="details-@counter" style="display:none;" class="details-row">
+                                    <td colspan="7">
+                                        <div class="p-3 bg-light rounded-3 m-2">
+                                            <div class="d-flex align-items-start gap-3">
+                                                <div class="bg-primary bg-opacity-10 p-2 rounded-circle">
+                                                    <i class="bi bi-file-diff text-primary"></i>
+                                                </div>
+                                                <div class="flex-grow-1">
+                                                    <h6 class="fw-bold mb-2">Changes Details</h6>
+                                                    <div class="change-details">
+                                                        @{
+                                                            var diffHtml = GetDiff(log.OldValues, log.NewValues);
+                                                            @Html.Raw(diffHtml)
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="7">
+                                    <div class="text-center py-5">
+                                        <i class="bi bi-inbox fs-1 text-muted"></i>
+                                        <p class="text-muted mb-0 mt-2">No audit logs found</p>
+                                        <small class="text-muted">System activities will appear here</small>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        @if (ViewBag.TotalPages != null && (int)ViewBag.TotalPages > 1)
         {
-            <a class="btn btn-sm btn-primary"
-               href="?page=@(ViewBag.CurrentPage + 1)">Next</a>
+            <div class="card-footer bg-transparent">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <span class="text-muted small">
+                        <i class="bi bi-file-text me-1"></i>
+                        Page @ViewBag.CurrentPage of @ViewBag.TotalPages
+                    </span>
+                    <div class="d-flex gap-2">
+                        @if ((int)ViewBag.CurrentPage > 1)
+                        {
+                            <a class="btn btn-outline-secondary btn-sm" 
+                               href="?page=@((int)ViewBag.CurrentPage - 1)">
+                                <i class="bi bi-chevron-left me-1"></i> Previous
+                            </a>
+                        }
+
+                        @if ((int)ViewBag.CurrentPage < (int)ViewBag.TotalPages)
+                        {
+                            <a class="btn btn-outline-secondary btn-sm" 
+                               href="?page=@((int)ViewBag.CurrentPage + 1)">
+                                Next <i class="bi bi-chevron-right ms-1"></i>
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
         }
     </div>
 </div>
 
-<script>
-    function toggleDetails(id) {
-        var row = document.getElementById("details-" + id);
-        row.style.display = row.style.display === "none" ? "table-row" : "none";
+<!-- Custom CSS -->
+<style>
+    .log-row {
+        transition: all 0.2s ease;
+        animation: slideIn 0.3s ease;
     }
+    
+    .log-row:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .details-row td {
+        padding: 0 !important;
+    }
+    
+    .details-row .p-3 {
+        border-left: 4px solid #0d6efd;
+    }
+    
+    .change-details {
+        font-size: 0.95rem;
+    }
+    
+    .change-details .change-item {
+        padding: 6px 0;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .change-details .change-item:last-child {
+        border-bottom: none;
+    }
+    
+    .change-details .old-value {
+        color: #dc3545;
+        text-decoration: line-through;
+        margin-right: 8px;
+    }
+    
+    .change-details .new-value {
+        color: #198754;
+        font-weight: 600;
+    }
+    
+    .change-details .arrow-icon {
+        color: #6c757d;
+        margin: 0 8px;
+    }
+    
+    .toggle-details {
+        transition: all 0.3s ease;
+    }
+    
+    .toggle-details:hover {
+        transform: scale(1.05);
+    }
+    
+    .toggle-details.active {
+        background-color: #0d6efd;
+        color: white;
+        border-color: #0d6efd;
+    }
+    
+    .toggle-details.active:hover {
+        background-color: #0b5ed7;
+        color: white;
+    }
+    
+    @@keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @@media (max-width: 768px) {
+        .table-responsive {
+            font-size: 0.85rem;
+        }
+        
+        .badge {
+            font-size: 0.75rem;
+        }
+        
+        .btn-sm {
+            padding: 0.2rem 0.5rem;
+            font-size: 0.75rem;
+        }
+        
+        .details-row .p-3 {
+            margin: 0.5rem;
+        }
+    }
+</style>
+
+<!-- JavaScript -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Toggle details with animation
+        const toggleButtons = document.querySelectorAll('.toggle-details');
+        
+        toggleButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const id = this.getAttribute('data-id');
+                const detailsRow = document.getElementById(`details-${id}`);
+                
+                if (detailsRow.style.display === 'none') {
+                    detailsRow.style.display = 'table-row';
+                    this.innerHTML = '<i class="bi bi-eye-slash me-1"></i> Hide';
+                    this.classList.add('active');
+                    
+                    // Smooth scroll to details
+                    setTimeout(() => {
+                        detailsRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 100);
+                } else {
+                    detailsRow.style.display = 'none';
+                    this.innerHTML = '<i class="bi bi-eye me-1"></i> View';
+                    this.classList.remove('active');
+                }
+            });
+        });
+        
+        // Real-time search filter
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.addEventListener('keyup', function() {
+                const searchTerm = this.value.toLowerCase().trim();
+                const rows = document.querySelectorAll('.log-row');
+                let visibleCount = 0;
+                
+                rows.forEach(row => {
+                    const searchData = row.getAttribute('data-search') || '';
+                    const match = searchData.includes(searchTerm);
+                    row.style.display = match ? '' : 'none';
+                    if (match) visibleCount++;
+                });
+                
+                // Update count
+                updateVisibleCount(visibleCount);
+            });
+        }
+        
+        // Action filter
+        const actionFilter = document.getElementById('actionFilter');
+        if (actionFilter) {
+            actionFilter.addEventListener('change', function() {
+                const selectedAction = this.value.toLowerCase();
+                const rows = document.querySelectorAll('.log-row');
+                let visibleCount = 0;
+                
+                rows.forEach(row => {
+                    const action = row.getAttribute('data-action')?.toLowerCase() || '';
+                    const match = !selectedAction || action === selectedAction;
+                    row.style.display = match ? '' : 'none';
+                    if (match) visibleCount++;
+                });
+                
+                updateVisibleCount(visibleCount);
+            });
+        }
+        
+        // Filter button
+        const filterButton = document.getElementById('filterButton');
+        if (filterButton) {
+            filterButton.addEventListener('click', function() {
+                const action = document.getElementById('actionFilter').value;
+                const search = document.getElementById('searchInput').value;
+                const fromDate = document.getElementById('fromDate').value;
+                
+                // Build query string
+                let params = new URLSearchParams();
+                if (action) params.append('action', action);
+                if (search) params.append('search', search);
+                if (fromDate) params.append('fromDate', fromDate);
+                
+                window.location.href = `?${params.toString()}`;
+            });
+        }
+        
+        // Update visible count
+        function updateVisibleCount(count) {
+            const countBadge = document.querySelector('.badge.bg-info.bg-opacity-10');
+            if (countBadge) {
+                countBadge.innerHTML = `<i class="bi bi-file-text me-1"></i> ${count} logs`;
+            }
+        }
+    });
 </script>
+
 @functions {
     public string GetDiff(string oldJson, string newJson)
     {
         try
         {
             if (string.IsNullOrEmpty(newJson))
-                return "<i>No changes</i>";
+                return "<div class='text-muted'><i>No changes recorded</i></div>";
 
             var oldDict = string.IsNullOrEmpty(oldJson)
                 ? new Dictionary<string, object>()
-                : System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(oldJson);
+                : System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(oldJson) ?? new Dictionary<string, object>();
 
-            var newDict = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(newJson);
+            var newDict = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(newJson) ?? new Dictionary<string, object>();
 
-            var result = "";
+            var result = new List<string>();
 
-            foreach (var key in newDict.Keys)
+            var orderedKeys = new List<string>
             {
+                "Company",
+                "Role",
+                "Status",
+                "DateApplied",
+                "Notes"
+            };
+
+            foreach (var key in orderedKeys)
+            {
+                if (!newDict.ContainsKey(key))
+                    continue;
+
                 oldDict.TryGetValue(key, out var oldVal);
                 var newVal = newDict[key];
 
-                if ((oldVal?.ToString() ?? "") != (newVal?.ToString() ?? ""))
+                var oldStr = oldVal?.ToString() ?? "";
+                var newStr = newVal?.ToString() ?? "";
+
+                if (oldStr != newStr)
                 {
-                    result += $"<b>{key}</b>: {oldVal ?? "-"} → {newVal}<br/>";
+                    var displayName = key switch
+                    {
+                        "Company" => "🏢 Company",
+                        "Role" => "💼 Role",
+                        "Status" => "📊 Status",
+                        "DateApplied" => "📅 Date Applied",
+                        "Notes" => "📝 Notes",
+                        _ => key
+                    };
+
+                    string oldDisplay = string.IsNullOrEmpty(oldStr) ? "Not set" : oldStr;
+                    string newDisplay = string.IsNullOrEmpty(newStr) ? "Not set" : newStr;
+
+                    if (key == "DateApplied")
+                    {
+                        if (DateTime.TryParse(oldStr, out var oldDate))
+                            oldDisplay = oldDate.ToString("dd MMM yyyy");
+                        if (DateTime.TryParse(newStr, out var newDate))
+                            newDisplay = newDate.ToString("dd MMM yyyy");
+                    }
+
+                    result.Add($@"
+                        <div class='change-item d-flex justify-content-between align-items-center'>
+                            <span class='fw-semibold'>{displayName}</span>
+                            <span>
+                                <span class='old-value'>{oldDisplay}</span>
+                                <i class='bi bi-arrow-right arrow-icon'></i>
+                                <span class='new-value'>{newDisplay}</span>
+                            </span>
+                        </div>");
                 }
             }
 
-            return result == "" ? "<i>No actual changes</i>" : result;
+            if (!result.Any())
+                return "<div class='text-muted'><i>No actual changes</i></div>";
+
+            return string.Join("", result);
         }
-        catch
+        catch (Exception ex)
         {
-            // 🔥 fallback for old logs
-            return $"<pre>{newJson}</pre>";
+            return $@"
+                <div class='alert alert-danger'>
+                    <i class='bi bi-exclamation-triangle me-1'></i>
+                    Error parsing changes: {ex.Message}
+                </div>
+                <pre class='bg-dark text-light p-2 rounded small'><code>{System.Text.Json.JsonSerializer.Serialize(newJson, new System.Text.Json.JsonSerializerOptions { WriteIndented = true })}</code></pre>";
         }
+    }
+
+    public string FormatDevice(string userAgent)
+    {
+        if (string.IsNullOrEmpty(userAgent))
+            return "Unknown";
+
+        userAgent = userAgent.ToLower();
+
+        string browser = "Unknown";
+        string os = "Unknown";
+
+        // Browser detection
+        if (userAgent.Contains("edg"))
+            browser = "Edge";
+        else if (userAgent.Contains("chrome") && !userAgent.Contains("edg") && !userAgent.Contains("opr"))
+            browser = "Chrome";
+        else if (userAgent.Contains("firefox"))
+            browser = "Firefox";
+        else if (userAgent.Contains("safari") && !userAgent.Contains("chrome") && !userAgent.Contains("edg"))
+            browser = "Safari";
+        else if (userAgent.Contains("opr") || userAgent.Contains("opera"))
+            browser = "Opera";
+
+        // OS detection
+        if (userAgent.Contains("windows"))
+            os = "Windows";
+        else if (userAgent.Contains("mac os") || userAgent.Contains("macintosh"))
+            os = "macOS";
+        else if (userAgent.Contains("android"))
+            os = "Android";
+        else if (userAgent.Contains("iphone") || userAgent.Contains("ipad") || userAgent.Contains("ipod"))
+            os = "iOS";
+        else if (userAgent.Contains("linux") && !userAgent.Contains("android"))
+            os = "Linux";
+
+        return $"{browser} • {os}";
     }
 }

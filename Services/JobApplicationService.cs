@@ -26,11 +26,14 @@ namespace JobTrackingSystem.Services
                 .Include(x => x.Company)
                 .Where(x => x.UserId == userId && !x.IsDeleted);
 
-            if (!string.IsNullOrEmpty(vm.Keyword))
+            if (!string.IsNullOrWhiteSpace(vm.Keyword))
             {
+                var keyword = vm.Keyword.Trim().ToLower();
+
                 query = query.Where(x =>
-                    x.Role.Contains(vm.Keyword) ||
-                    (x.Notes != null && x.Notes.Contains(vm.Keyword)));
+                    x.Role.ToLower().Contains(keyword) ||
+                    (x.Notes != null && x.Notes.ToLower().Contains(keyword)) ||
+                    x.Company.Name.ToLower().Contains(keyword));
             }
 
             if (!string.IsNullOrEmpty(vm.Status))
@@ -44,7 +47,21 @@ namespace JobTrackingSystem.Services
 
             if (vm.ToDate.HasValue)
                 query = query.Where(x => x.DateApplied <= vm.ToDate);
+            switch (vm.SortBy)
+            {
+                case "company":
+                    query = query.OrderBy(x => x.Company.Name);
+                    break;
 
+                case "status":
+                    query = query.OrderBy(x => x.Status);
+                    break;
+
+                case "date":
+                default:
+                    query = query.OrderByDescending(x => x.DateApplied);
+                    break;
+            }
             var totalCount = await query.CountAsync();
 
             var data = await query
@@ -88,6 +105,7 @@ namespace JobTrackingSystem.Services
             });
 
             await LogAudit(entity.UserId, "Create", entity, null, newValues, ip, userAgent);
+
         }
 
         // ================= UPDATE =================
@@ -161,14 +179,20 @@ namespace JobTrackingSystem.Services
 
         // ================= AUDIT =================
         private async Task LogAudit(
-            string userId,
-            string action,
-            JobApplication entity,
-            string? oldValues,
-            string? newValues,
-            string ip,
-            string userAgent)
+     string userId,
+     string action,
+     JobApplication entity,
+     string? oldValues,
+     string? newValues,
+     string ip,
+     string userAgent)
         {
+            var company = await _context.Companies
+                .FirstOrDefaultAsync(c => c.Id == entity.CompanyId);
+
+            var description =
+                $"{action} {company?.Name} - {entity.Role}";
+
             var log = new AuditLog
             {
                 UserId = userId,
@@ -179,10 +203,12 @@ namespace JobTrackingSystem.Services
                 OldValues = oldValues,
                 NewValues = newValues,
                 IpAddress = ip,
-                UserAgent = userAgent
+                UserAgent = userAgent,
+                Description = description
             };
 
             _context.AuditLogs.Add(log);
+
             await _context.SaveChangesAsync();
         }
 
