@@ -7,8 +7,10 @@
     using Microsoft.AspNetCore.Mvc.Rendering;
     using Microsoft.EntityFrameworkCore;
     using System.Security.Claims;
+    using ClosedXML.Excel;
+    using System.IO;
 
-    [Authorize]
+[Authorize]
     public class JobApplicationController : Controller
     {
         private readonly IJobApplicationService _service;
@@ -271,6 +273,51 @@
 
             return (ip ?? "Unknown", userAgent ?? "Unknown");
         }
+    public async Task<IActionResult> ExportExcel()
+    {
+        var userId = GetUserId();
 
+        var jobs = await _context.JobApplications
+            .Include(x => x.Company)
+            .Where(x => x.UserId == userId && !x.IsDeleted)
+            .ToListAsync();
+
+        using var workbook = new XLWorkbook();
+
+        var worksheet = workbook.Worksheets.Add("Applications");
+
+        worksheet.Cell(1, 1).Value = "Company";
+        worksheet.Cell(1, 2).Value = "Role";
+        worksheet.Cell(1, 3).Value = "Status";
+        worksheet.Cell(1, 4).Value = "Date Applied";
+        worksheet.Cell(1, 5).Value = "Notes";
+
+        int row = 2;
+
+        foreach (var job in jobs)
+        {
+            worksheet.Cell(row, 1).Value = job.Company?.Name;
+            worksheet.Cell(row, 2).Value = job.Role;
+            worksheet.Cell(row, 3).Value = job.Status;
+            worksheet.Cell(row, 4).Value = job.DateApplied.ToString("dd MMM yyyy");
+            worksheet.Cell(row, 5).Value = job.Notes;
+
+            row++;
+        }
+
+        worksheet.Columns().AdjustToContents();
+
+        using var stream = new MemoryStream();
+
+        workbook.SaveAs(stream);
+
+        var content = stream.ToArray();
+
+        return File(
+            content,
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "JobApplications.xlsx");
     }
+
+}
 
