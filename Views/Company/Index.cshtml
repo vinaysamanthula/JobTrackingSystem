@@ -1,0 +1,62 @@
+﻿@model IEnumerable<JobTrackingSystem.Models.Company>
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Companies</h2>
+
+        <a asp-action="Create"
+           class="btn btn-primary">
+            + Add Company
+        </a>
+    </div>
+
+    <div class="card shadow-sm">
+
+        <div class="card-body">
+
+            <table class="table table-hover">
+
+                <thead class="table-light">
+                    <tr>
+                        <th>Name</th>
+                        <th>Location</th>
+                        <th>Website</th>
+                        <th width="180">Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @foreach (var company in Model)
+                    {
+                        <tr>
+                            <td>@company.Name</td>
+                            <td>@company.Location</td>
+                            <td>@company.Website</td>
+
+                            <td>
+                                <a asp-action="Edit"
+                                   asp-route-id="@company.Id"
+                                   class="btn btn-warning btn-sm">
+                                    Edit
+                                </a>
+
+                                <a asp-action="Delete"
+                                   asp-route-id="@company.Id"
+                                   class="btn btn-danger btn-sm">
+                                    Delete
+                                </a>
+                            </td>
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>

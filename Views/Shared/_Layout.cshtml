@@ -324,8 +324,14 @@
                                 <i class="bi bi-list-check"></i> Applications
                             </a>
                         </li>
-
-                       
+                        <!-- Trash Link with Special Styling -->
+                        <li class="nav-item">
+                            <a class="nav-link trash-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Deleted" ? "active" : "")"
+                               asp-controller="JobApplication" asp-action="Deleted">
+                                <i class="bi bi-trash"></i> Trash
+                            </a>
+                        </li>
+                    
 
                         <li class="nav-item">
                             <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Audit" ? "active" : "")"
@@ -333,13 +339,12 @@
                                 <i class="bi bi-clock-history"></i> Audit Logs
                             </a>
                         </li>
-
-                        @* <li class="nav-item">
+                        <li class="nav-item">
                             <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Company" ? "active" : "")"
                                asp-controller="Company" asp-action="Index">
                                 <i class="bi bi-building"></i> Companies
                             </a>
-                        </li> *@
+                        </li>
                     </ul>
 
                     @if (User.Identity?.IsAuthenticated ?? false)

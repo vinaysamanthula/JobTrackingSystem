@@ -1,0 +1,45 @@
+﻿@model JobTrackingSystem.Models.Company
+
+<div class="container mt-4">
+
+    <div class="card shadow-sm">
+
+        <div class="card-header">
+            <h4>Add Company</h4>
+        </div>
+
+        <div class="card-body">
+
+            <form asp-action="Create">
+
+                <div class="mb-3">
+                    <label>Name</label>
+                    <input asp-for="Name" class="form-control" />
+                </div>
+
+                <div class="mb-3">
+                    <label>Location</label>
+                    <input asp-for="Location" class="form-control" />
+                </div>
+
+                <div class="mb-3">
+                    <label>Website</label>
+                    <input asp-for="Website" class="form-control" />
+                </div>
+
+                <button class="btn btn-success">
+                    Save
+                </button>
+
+                <a asp-action="Index"
+                   class="btn btn-secondary">
+                    Cancel
+                </a>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>

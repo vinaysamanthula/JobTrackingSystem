@@ -1,0 +1,36 @@
+﻿@model JobTrackingSystem.Models.Company
+
+<div class="container mt-4">
+
+    <div class="card shadow-sm">
+
+        <div class="card-body">
+
+            <h4>Delete Company</h4>
+
+            <p>
+                Are you sure you want to delete
+                <strong>@Model.Name</strong>?
+            </p>
+
+            <form asp-action="Delete">
+
+                <input type="hidden"
+                       asp-for="Id" />
+
+                <button class="btn btn-danger">
+                    Delete
+                </button>
+
+                <a asp-action="Index"
+                   class="btn btn-secondary">
+                    Cancel
+                </a>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
