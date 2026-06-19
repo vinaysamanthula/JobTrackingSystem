@@ -221,6 +221,7 @@ Save your project data instantly into Excel-compatible CSV format for easy repor
 * Login Page
 ![Alt Image](https://github.com/vinaysamanthula/JobTrackingSystem/blob/ae78efc8a6ba497dcec360ca07fffcd40b462152/Screenshot%202026-06-19%20210109.png)
 * Dashboard
+![Alt Image](https://github.com/vinaysamanthula/JobTrackingSystem/blob/5230ac20b5fce4969501421006fd9b43e2208ae1/Screenshot%202026-06-19%20211251.png)
 * Job Applications
 * Company Management
 * Audit Logs
